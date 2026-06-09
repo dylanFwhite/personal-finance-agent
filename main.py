@@ -1,18 +1,13 @@
 import argparse
 
+from src.finance_agent.setup import Setup
 
-def run_application(data_directory):
-    """Main application logic that requires the data directory."""
-    print("===============================================")
-    print("✅ Application running successfully!")
-    print(f"📚 Reading configuration and data from: {data_directory}")
-    # Add the rest of your application logic here...
-    print("===============================================")
 
+# TODO: Implement Debug logger
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run the main application.")
-    # Define the argument expected from the shell script
+
     parser.add_argument(
         "--data-dir",
         type=str,
@@ -21,10 +16,19 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
+    data_dir = args.data_dir
 
-    run_application(args.data_dir)
+    print(f"📚 Reading configuration and data from: {data_dir}")
+
+    setup = Setup(data_dir)
+
+    if setup.is_first_run():
+        setup.run_setup()
+    else:
+        setup.run_migrations()
+
+    # run_agent()
 
     print("\n\n================================================")
-    print("Review complete. Press ENTER to exit the application.")
-    # This line makes the program wait indefinitely until the user presses Enter.
+    print("Press ENTER to exit the application.")
     input()
