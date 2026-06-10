@@ -1,4 +1,5 @@
 import os
+import duckdb
 
 
 class Setup:
@@ -20,7 +21,42 @@ class Setup:
         pass
 
     def _create_database(self):
-        pass
+        with duckdb.connect(self.db_path) as conn:
+            create_accounts_table = """
+            CREATE TABLE IF NOT EXISTS Accounts (
+                account_id INTEGER PRIMARY KEY,
+                name VARCHAR(20) NOT NULL,
+                type VARCHAR(50) NOT NULL,
+            );
+            """
+
+            create_transactions_table = """
+            CREATE TABLE IF NOT EXISTS Transactions (
+                transaction_id INTEGER PRIMARY KEY,
+                account_id INTEGER NOT NULL,
+                date DATE NOT NULL,
+                amount DECIMAL(15, 2) NOT NULL,
+                type VARCHAR(50),
+                description VARCHAR(255),
+                is_outgoing BOOLEAN NOT NULL,
+                FOREIGN KEY (account_id) REFERENCES Accounts (account_id)
+            );
+            """
+
+            create_balance_table = """
+            CREATE TABLE IF NOT EXISTS Balances (
+                balance_id INTEGER PRIMARY KEY,
+                account_id INTEGER NOT NULL,
+                date DATE NOT NULL,
+                amount DECIMAL(15, 2) NOT NULL,
+                FOREIGN KEY (account_id) REFERENCES Accounts (account_id)
+            );
+            """
+
+            conn.execute(create_accounts_table)
+            conn.execute(create_transactions_table)
+            conn.execute(create_balance_table)
+            print("✅ Database schema initialized successfully.")
 
     def _collect_user_preferences(self):
         pass
