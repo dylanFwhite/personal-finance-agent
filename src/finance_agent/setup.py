@@ -1,6 +1,8 @@
 import os
 import duckdb
 
+# TODO: Implement Migration Support
+
 
 class Setup:
     def __init__(self, app_dir: str):

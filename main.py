@@ -1,5 +1,7 @@
 import argparse
 
+
+from src.finance_agent.llm import llm
 from src.finance_agent.setup import Setup
 
 
@@ -27,7 +29,17 @@ if __name__ == "__main__":
     else:
         setup.run_migrations()
 
-    # run_agent()
+    messages = [
+        (
+            "system",
+            "You are a an expert task orchestrator and it is your job to decide whether a task should be delegated to either 'Query' or 'Request input' based on whether you feel that you have enough detail",
+        ),
+        ("human", "What is the best programming language?"),
+        ("human", "BTW I love writing love level code with inherent memory safety"),
+    ]
+
+    response = llm.invoke(messages)
+    print(response.content)
 
     print("\n\n================================================")
     print("Press ENTER to exit the application.")
