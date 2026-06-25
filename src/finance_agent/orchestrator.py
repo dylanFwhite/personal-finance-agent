@@ -4,6 +4,7 @@ from typing import Annotated, Literal, TypedDict
 
 from langchain.tools import tool
 from langgraph.graph import END, START, StateGraph
+from langgraph.checkpoint.memory import InMemorySaver
 
 from src.finance_agent.llm import llm
 
@@ -26,6 +27,9 @@ class MessagesState(TypedDict):
     messages: Annotated[list[AnyMessage], operator.add]
 
 
+checkpointer = InMemorySaver()
+
+
 @tool
 def request_info() -> str:
     """
@@ -41,6 +45,8 @@ def request_info() -> str:
 tools = [request_info]
 tools_by_name = {tool.name: tool for tool in tools}
 llm_with_tools = llm.bind_tools(tools)
+# TODO: Make model return structured output e.g.
+# structured_llm = llm.with_structured_output(EmailClassification)
 
 
 def llm_call(state: dict):
@@ -87,7 +93,7 @@ agent_builder.add_edge(START, "llm_call")
 agent_builder.add_conditional_edges("llm_call", should_continue, ["tool_node", END])
 agent_builder.add_edge("tool_node", "llm_call")
 
-orchestrator = agent_builder.compile()
+orchestrator = agent_builder.compile(checkpointer=checkpointer)
 
 if __name__ == "__main__":
     print(orchestrator.get_graph(xray=True).draw_mermaid())
