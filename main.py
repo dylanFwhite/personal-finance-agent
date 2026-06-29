@@ -1,15 +1,19 @@
 import argparse
 
+
 from langchain.messages import HumanMessage
 
 
-from src.finance_agent.orchestrator import orchestrator
+from src.finance_agent.orchestrator import GraphState, orchestrator
 from src.finance_agent.setup import Setup
 
 
 # TODO: Implement Debug logger
 
-USER_PROMPT = "Please load my data from the file data.csv"
+
+# USER_PROMPT = "Please load my data from the file data.csv"
+# USER_PROMPT = "How much did I spend on transport last month?"
+USER_PROMPT = "I need your help with something"
 
 if __name__ == "__main__":
     ## PARSE USER ARGS
@@ -36,10 +40,13 @@ if __name__ == "__main__":
         setup.run_migrations()
 
     ## RUN ORCHESTRATOR
-    messages = [HumanMessage(content=USER_PROMPT)]
-    messages = orchestrator.invoke({"messages": messages})
+    user_input = HumanMessage(content=USER_PROMPT)
 
-    for m in messages["messages"]:
+    result = orchestrator.invoke(
+        GraphState(user_input=user_input, messages=[user_input])
+    )
+
+    for m in result["messages"]:
         m.pretty_print()
 
     print("\n\n================================================")
